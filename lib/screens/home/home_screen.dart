@@ -629,7 +629,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildProductsGrid(ProductProvider productProvider) {
     if (productProvider.isLoading && productProvider.products.isEmpty) {
       return const Center(child: CircularProgressIndicator());
-        childAspectRatio: 0.65,
       );
     }
 
@@ -649,7 +648,6 @@ class _HomeScreenState extends State<HomeScreen> {
         physics: NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.65,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
         ),
