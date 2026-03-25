@@ -7,7 +7,7 @@ import '../services/local_storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService();
-  final LocalStorageService _localStorage = LocalStorageService();
+  
 
   UserModel? _currentUser;
   bool _isLoading = false;
@@ -27,7 +27,7 @@ class AuthProvider extends ChangeNotifier {
     
     try {
       // التحقق من وجود مستخدم مخزن محلياً
-      final storedUser = _localStorage.getUser();
+      final storedUser = LocalStorageService.getUser();
       if (storedUser != null) {
         _currentUser = storedUser;
         _isAuthenticated = true;
@@ -38,7 +38,7 @@ class AuthProvider extends ChangeNotifier {
         if (user != null) {
           _currentUser = user;
           _isAuthenticated = true;
-          await _localStorage.saveUser(user);
+          await LocalStorageService.saveUser(user);
         }
       }
     } catch (e) {
@@ -67,7 +67,7 @@ class AuthProvider extends ChangeNotifier {
         if (user != null) {
           _currentUser = user;
           _isAuthenticated = true;
-          await _localStorage.saveUser(user);
+          await LocalStorageService.saveUser(user);
           notifyListeners();
           return true;
         }
@@ -116,7 +116,7 @@ class AuthProvider extends ChangeNotifier {
         if (user != null) {
           _currentUser = user;
           _isAuthenticated = true;
-          await _localStorage.saveUser(user);
+          await LocalStorageService.saveUser(user);
           notifyListeners();
           return true;
         }
@@ -178,7 +178,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _supabaseService.signOut();
-      await _localStorage.clearUser();
+      await LocalStorageService.clearUser();
       _currentUser = null;
       _isAuthenticated = false;
       notifyListeners();
@@ -232,7 +232,7 @@ class AuthProvider extends ChangeNotifier {
         final updatedUser = await _supabaseService.getUser(_currentUser!.id);
         if (updatedUser != null) {
           _currentUser = updatedUser;
-          await _localStorage.saveUser(updatedUser);
+          await LocalStorageService.saveUser(updatedUser);
           notifyListeners();
         }
         _setLoading(false);
@@ -261,7 +261,7 @@ class AuthProvider extends ChangeNotifier {
         
         if (url != null) {
           _currentUser = _currentUser!.copyWith(avatarUrl: url);
-          await _localStorage.saveUser(_currentUser!);
+          await LocalStorageService.saveUser(_currentUser!);
           notifyListeners();
           return true;
         }

@@ -59,7 +59,7 @@ class _WalletScreenState extends State<WalletScreen> {
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
       appBar: CustomAppBar(
         title: 'المحفظة',
-        showNotification: true,
+        
       ),
       body: SingleChildScrollView(
         child: Column(

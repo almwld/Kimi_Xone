@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
-      appBar: HomeAppBar(
+      appBar: CustomAppBar(
         notificationCount: notificationProvider.unreadCount,
         onNotificationTap: () {
           Navigator.push(

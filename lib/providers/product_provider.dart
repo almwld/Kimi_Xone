@@ -6,7 +6,7 @@ import '../services/local_storage_service.dart';
 
 class ProductProvider extends ChangeNotifier {
   final SupabaseService _supabaseService = SupabaseService();
-  final LocalStorageService _localStorage = LocalStorageService();
+  
 
   List<ProductModel> _products = [];
   List<ProductModel> _featuredProducts = [];
@@ -38,7 +38,7 @@ class ProductProvider extends ChangeNotifier {
 
   // تهيئة الموفر
   Future<void> initialize() async {
-    _favoriteIds = _localStorage.getFavoriteIds();
+    _favoriteIds = LocalStorageService.getFavoriteIds();
     await loadProducts();
     await loadFeaturedProducts();
     await loadAuctionProducts();
@@ -222,7 +222,7 @@ class ProductProvider extends ChangeNotifier {
   Future<void> addToFavorites(String productId) async {
     try {
       await _supabaseService.addToFavorites('current_user_id', productId);
-      await _localStorage.addToFavorites(productId);
+      await LocalStorageService.addToFavorites(productId);
       _favoriteIds.add(productId);
       notifyListeners();
     } catch (e) {
@@ -234,7 +234,7 @@ class ProductProvider extends ChangeNotifier {
   Future<void> removeFromFavorites(String productId) async {
     try {
       await _supabaseService.removeFromFavorites('current_user_id', productId);
-      await _localStorage.removeFromFavorites(productId);
+      await LocalStorageService.removeFromFavorites(productId);
       _favoriteIds.remove(productId);
       notifyListeners();
     } catch (e) {
@@ -260,7 +260,7 @@ class ProductProvider extends ChangeNotifier {
   Future<void> loadFavorites(String userId) async {
     try {
       _favoriteIds = await _supabaseService.getFavorites(userId);
-      await _localStorage.saveFavoriteProducts(
+      await LocalStorageService.saveFavoriteProducts(
         _products.where((p) => _favoriteIds.contains(p.id)).toList(),
       );
       notifyListeners();

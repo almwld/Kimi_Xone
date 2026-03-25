@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/local_storage_service.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  final LocalStorageService _localStorage = LocalStorageService();
+  
 
   bool _isDarkMode = false;
   bool _isSystemTheme = true;
@@ -20,8 +20,8 @@ class ThemeProvider extends ChangeNotifier {
 
   // تهيئة الموفر
   Future<void> initialize() async {
-    _isDarkMode = _localStorage.getDarkMode();
-    _isSystemTheme = _localStorage.getLanguage() == 'system';
+    _isDarkMode = LocalStorageService.getDarkMode();
+    _isSystemTheme = LocalStorageService.getLanguage() == 'system';
     notifyListeners();
   }
 
@@ -29,7 +29,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> toggleTheme() async {
     _isDarkMode = !_isDarkMode;
     _isSystemTheme = false;
-    await _localStorage.setDarkMode(_isDarkMode);
+    await LocalStorageService.setDarkMode(_isDarkMode);
     notifyListeners();
   }
 
@@ -37,7 +37,7 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> setDarkMode(bool value) async {
     _isDarkMode = value;
     _isSystemTheme = false;
-    await _localStorage.setDarkMode(value);
+    await LocalStorageService.setDarkMode(value);
     notifyListeners();
   }
 

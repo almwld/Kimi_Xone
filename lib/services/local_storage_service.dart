@@ -28,7 +28,6 @@ class LocalStorageService {
   static bool getDarkMode() => _settingsBoxInstance.get('dark_mode', defaultValue: false);
   static Future<void> setDarkMode(bool isDark) async => await _settingsBoxInstance.put('dark_mode', isDark);
   static String getLanguage() => _settingsBoxInstance.get('language', defaultValue: 'ar');
-  static Future<void> setLanguage(String lang) async => await _settingsBoxInstance.put('language', lang);
 
   // ===== المفضلة =====
   static List<String> getFavoriteIds() => _favoritesBoxInstance.get('favorites', defaultValue: <String>[]);
@@ -42,7 +41,6 @@ class LocalStorageService {
     favs.remove(id);
     await _favoritesBoxInstance.put('favorites', favs);
   }
-  static Future<void> saveFavoriteProducts(List<String> ids) async => await _favoritesBoxInstance.put('favorites', ids);
 
   // ===== سلة التسوق =====
   static List<Map<String, dynamic>> getCart() => _cartBoxInstance.get('cart', defaultValue: <Map<String, dynamic>>[]);
