@@ -1,313 +1,100 @@
-// موفر المصادقة - إدارة حالة تسجيل الدخول
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import '../models/user_model.dart';
-import '../services/supabase_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/supabase_service.dart';
 
 class AuthProvider extends ChangeNotifier {
-  
-  
-
-  UserModel? _currentUser;
+  Map<String, dynamic>? _user;
   bool _isLoading = false;
   String? _error;
-  bool _isAuthenticated = false;
 
-  // getters
-  UserModel? get currentUser => _currentUser;
+  Map<String, dynamic>? get user => _user;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get isAuthenticated => _isAuthenticated;
-  bool get isGuest => !_isAuthenticated;
+  bool get isAuthenticated => _user != null;
 
-  // تهيئة الموفر
-  Future<void> initialize() async {
-    _setLoading(true);
-    
-    try {
-      // التحقق من وجود مستخدم مخزن محلياً
-      final storedUser = LocalStorageService.getUser();
-      if (storedUser != null) {
-        _currentUser = storedUser;
-        _isAuthenticated = true;
-      } else if (SupabaseService.isAuthenticated) {
-        // التحقق من Supabase
-        final userId = SupabaseService.currentUser!.id;
-        final user = await SupabaseService.getUser(userId);
-        if (user != null) {
-          _currentUser = user;
-          _isAuthenticated = true;
-          await LocalStorageService.saveUser(user);
-        }
-      }
-    } catch (e) {
-      _setError('فشل في تهيئة المصادقة');
-    } finally {
-      _setLoading(false);
-    }
+  AuthProvider() {
+    _loadUser();
   }
 
-  // تسجيل الدخول بالبريد الإلكتروني
-  Future<bool> signIn({
-    required String email,
-    required String password,
-  }) async {
-    _setLoading(true);
-    _clearError();
+  void _loadUser() {
+    _user = LocalStorageService.getUser();
+  }
+
+  Future<bool> signIn(String email, String password) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
     try {
-      final response = await SupabaseService.signIn(
-        email: email,
-        password: password,
-      );
-
+      final response = await SupabaseService.signIn(email, password);
       if (response.user != null) {
-        final user = await SupabaseService.getUser(response.user!.id);
-        if (user != null) {
-          _currentUser = user;
-          _isAuthenticated = true;
-          await LocalStorageService.saveUser(user);
-          notifyListeners();
+        final userData = await SupabaseService.getUser(response.user!.id);
+        if (userData != null) {
+          _user = userData;
+          await LocalStorageService.saveUser(userData);
           return true;
         }
       }
-      _setError('بيانات الدخول غير صحيحة');
       return false;
     } catch (e) {
-      _setError('فشل تسجيل الدخول، يرجى المحاولة مرة أخرى');
+      _error = e.toString();
       return false;
     } finally {
-      _setLoading(false);
-    }
-  }
-
-  // تسجيل الدخول برقم الهاتف
-  Future<bool> signInWithPhone(String phone) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      await SupabaseService.signInWithPhone(phone: phone);
-      _setLoading(false);
-      return true;
-    } catch (e) {
-      _setError('فشل إرسال رمز التحقق');
-      return false;
-    }
-  }
-
-  // التحقق من رمز OTP
-  Future<bool> verifyOTP({
-    required String phone,
-    required String code,
-  }) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      final response = await SupabaseService.verifyOTP(
-        phone: phone,
-        token: code,
-      );
-
-      if (response.user != null) {
-        final user = await SupabaseService.getUser(response.user!.id);
-        if (user != null) {
-          _currentUser = user;
-          _isAuthenticated = true;
-          await LocalStorageService.saveUser(user);
-          notifyListeners();
-          return true;
-        }
-      }
-      _setError('رمز التحقق غير صحيح');
-      return false;
-    } catch (e) {
-      _setError('فشل التحقق من الرمز');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // إنشاء حساب جديد
-  Future<bool> signUp({
-    required String email,
-    required String password,
-    required String fullName,
-    required String phone,
-    required String city,
-    required String userType,
-  }) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      final response = await SupabaseService.signUp(
-        email: email,
-        password: password,
-        userData: {
-          'full_name': fullName,
-          'phone': phone,
-          'city': city,
-          'user_type': userType,
-        },
-      );
-
-      if (response.user != null) {
-        // إنشاء محفظة للمستخدم
-        await SupabaseService.createWallet(response.user!.id);
-        
-        _setLoading(false);
-        return true;
-      }
-      _setError('فشل إنشاء الحساب');
-      return false;
-    } catch (e) {
-      _setError('فشل إنشاء الحساب، يرجى المحاولة مرة أخرى');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // تسجيل الخروج
-  Future<void> signOut() async {
-    _setLoading(true);
-
-    try {
-      await SupabaseService.signOut();
-      await LocalStorageService.clearUser();
-      _currentUser = null;
-      _isAuthenticated = false;
+      _isLoading = false;
       notifyListeners();
-    } catch (e) {
-      _setError('فشل تسجيل الخروج');
-    } finally {
-      _setLoading(false);
     }
   }
 
-  // إعادة تعيين كلمة المرور
-  Future<bool> resetPassword(String email) async {
-    _setLoading(true);
-    _clearError();
+  Future<bool> signUp(String email, String password, Map<String, dynamic> userData) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await SupabaseService.signUp(email, password, data: userData);
+      if (response.user != null) {
+        await SupabaseService.createWallet(response.user!.id);
+        final user = await SupabaseService.getUser(response.user!.id);
+        if (user != null) {
+          _user = user;
+          await LocalStorageService.saveUser(user);
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> signOut() async {
+    await SupabaseService.signOut();
+    _user = null;
+    await LocalStorageService.clearUser();
+    notifyListeners();
+  }
+
+  Future<void> signInAsGuest() async {
+    _user = {'id': 'guest', 'email': 'guest@flexyemen.com', 'name': 'ضيف'};
+    notifyListeners();
+  }
+
+  Future<void> resetPassword(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
     try {
       await SupabaseService.resetPassword(email);
-      _setLoading(false);
-      return true;
     } catch (e) {
-      _setError('فشل إرسال رابط إعادة التعيين');
-      return false;
-    }
-  }
-
-  // تحديث كلمة المرور
-  Future<bool> updatePassword(String newPassword) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      await SupabaseService.updatePassword(newPassword);
-      _setLoading(false);
-      return true;
-    } catch (e) {
-      _setError('فشل تحديث كلمة المرور');
-      return false;
-    }
-  }
-
-  // تحديث بيانات المستخدم
-  Future<bool> updateProfile(Map<String, dynamic> data) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      if (_currentUser != null) {
-        await SupabaseService.updateUser(_currentUser!.id, data);
-        
-        // تحديث البيانات المحلية
-        final updatedUser = await SupabaseService.getUser(_currentUser!.id);
-        if (updatedUser != null) {
-          _currentUser = updatedUser;
-          await LocalStorageService.saveUser(updatedUser);
-          notifyListeners();
-        }
-        _setLoading(false);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      _setError('فشل تحديث البيانات');
-      return false;
+      _error = e.toString();
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
-  }
-
-  // رفع صورة الملف الشخصي
-  Future<bool> uploadAvatar(dynamic file) async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      if (_currentUser != null && file != null) {
-        final url = await SupabaseService.uploadAvatar(
-          _currentUser!.id,
-          file,
-        );
-        
-        if (url != null) {
-          _currentUser = _currentUser!.copyWith(avatarUrl: url);
-          await LocalStorageService.saveUser(_currentUser!);
-          notifyListeners();
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      _setError('فشل رفع الصورة');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
-
-  // الدخول كضيف
-  void signInAsGuest() {
-    _currentUser = UserModel(
-      id: 'guest',
-      fullName: 'ضيف',
-      email: '',
-      phone: '',
-      city: '',
-      userType: 'guest',
-      createdAt: DateTime.now(),
-    );
-    _isAuthenticated = false;
-    notifyListeners();
-  }
-
-  // مساعدات
-  void _setLoading(bool value) {
-    _isLoading = value;
-    notifyListeners();
-  }
-
-  void _setError(String message) {
-    _error = message;
-    notifyListeners();
-  }
-
-  void _clearError() {
-    _error = null;
-  }
-
-  void clearError() {
-    _clearError();
-    notifyListeners();
   }
 }
-// تأكد من تحويل storedUser

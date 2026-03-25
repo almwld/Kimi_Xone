@@ -5,6 +5,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final bool showBackButton;
   final List<Widget>? actions;
+  final VoidCallback? onSearchTap;
+  final VoidCallback? onNotificationTap;
   final int? notificationCount;
 
   const CustomAppBar({
@@ -12,6 +14,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.showBackButton = false,
     this.actions,
+    this.onSearchTap,
+    this.onNotificationTap,
     this.notificationCount,
   });
 
@@ -25,13 +29,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions ?? [
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () {},
+          onPressed: onSearchTap ?? () {},
         ),
         Stack(
           children: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {},
+              onPressed: onNotificationTap ?? () {},
             ),
             if (notificationCount != null && notificationCount! > 0)
               Positioned(
