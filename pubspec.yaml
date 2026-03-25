@@ -79,8 +79,6 @@ flutter:
     - assets/icons/svg/
     - assets/animations/
     - assets/fonts/
-  
-  fonts:
     - family: Changa
       fonts:
         - asset: assets/fonts/Changa-SemiBold.ttf
