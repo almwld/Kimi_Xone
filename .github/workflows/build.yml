@@ -9,41 +9,50 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.22.0'
-
-    - name: Build
-      run: |
-        # إنشاء مجلد android
-        flutter create --org com.flexyemen --project-name flex_yemen --platforms android .
-        
-        # إضافة flutterEmbedding
-        sed -i '/<application>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
-        
-        # رفع minSdkVersion إلى 21 (لـ firebase_messaging)
-        sed -i 's/minSdkVersion [0-9]*/minSdkVersion 21/' android/app/build.gradle
-        
-        # إضافة NDK و desugaring
-        sed -i '/android {/a \    ndkVersion "27.0.12077973"' android/app/build.gradle
-        sed -i '/compileOptions {/a \                coreLibraryDesugaringEnabled true' android/app/build.gradle
-        sed -i '/dependencies {/a \    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.4"' android/app/build.gradle
-        
-        # بناء APK
-        flutter pub get
-        flutter build apk --release --split-per-abi
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: build/app/outputs/flutter-apk/*.apk
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+      
+      - name: Fix pubspec.yaml
+        run: |
+          # تأكد من وجود الإصدارات الصحيحة
+          sed -i 's/package_info_plus: \^5.0.1/package_info_plus: ^9.0.0/g' pubspec.yaml
+          sed -i 's/package_info_plus: \^8.0.0/package_info_plus: ^9.0.0/g' pubspec.yaml
+          echo "✅ pubspec.yaml fixed"
+          grep package_info_plus pubspec.yaml
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Create Android folder
+        run: |
+          flutter create --platforms=android --project-name=flex_yemen --org com.flexyemen ./temp_android
+          cp -r temp_android/android .
+          rm -rf temp_android
+      
+      - name: Fix Android configuration
+        run: |
+          # إضافة namespace إلى build.gradle
+          sed -i '/android {/a\    namespace "com.flexyemen.flex_yemen"' android/app/build.gradle
+          # تفعيل AndroidX
+          echo "android.useAndroidX=true" >> android/gradle.properties
+          echo "android.enableJetifier=true" >> android/gradle.properties
+      
+      - name: Build APK
+        run: flutter build apk --release
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
