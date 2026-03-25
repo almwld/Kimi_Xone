@@ -48,6 +48,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.3.10
   device_info_plus: ^9.1.2
+  package_info_plus: ^8.0.0
   permission_handler: ^11.3.0
   local_auth: ^2.2.0
   encrypt: ^5.0.1
