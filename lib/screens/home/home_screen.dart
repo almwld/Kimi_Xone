@@ -118,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      body: RefreshIndicatorGold(
+      body: RefreshIndicator(
         onRefresh: _refresh,
         child: SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
@@ -628,7 +628,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProductsGrid(ProductProvider productProvider) {
     if (productProvider.isLoading && productProvider.products.isEmpty) {
-      return ShimmerGrid(
+      return CircularProgressIndicator(
         itemCount: 6,
         crossAxisCount: 2,
         childAspectRatio: 0.65,
