@@ -64,7 +64,7 @@ class FlexYemenApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeProvider.themeMode,
-          home: const SplashScreen(),
+          home: SplashScreen(),
         );
       },
     );
