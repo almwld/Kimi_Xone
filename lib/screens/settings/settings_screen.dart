@@ -14,7 +14,7 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
-      appBar: const CustomAppBar(title: 'الإعدادات'),
+      appBar: CustomAppBar(title: 'الإعدادات'),
       body: ListView(
         children: [
           SwitchListTile(

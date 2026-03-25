@@ -11,7 +11,7 @@ class MyOrdersScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
-      appBar: const CustomAppBar(title: 'طلباتي'),
+      appBar: CustomAppBar(title: 'طلباتي'),
       body: const Center(child: Text('لا توجد طلبات بعد')),
     );
   }
