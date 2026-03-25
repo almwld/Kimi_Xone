@@ -87,12 +87,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().loadProducts();
+      context.read<ProductProvider>().getProducts();
     });
   }
 
   Future<void> _refresh() async {
-    await context.read<ProductProvider>().loadProducts(refresh: true);
+    await context.read<ProductProvider>().getProducts(refresh: true);
   }
 
   @override

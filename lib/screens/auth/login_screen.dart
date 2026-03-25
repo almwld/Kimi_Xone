@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       final authProvider = context.read<AuthProvider>();
       
-      final success = await authProvider.signIn(
+      final success = await authProvider.signIn(_emailController.text, _passwordController.text)
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );

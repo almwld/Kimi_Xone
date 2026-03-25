@@ -32,7 +32,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _emailController.text.trim(),
       );
 
-      if (success && mounted) {
+      if (mounted) {
         setState(() {
           _emailSent = true;
         });
