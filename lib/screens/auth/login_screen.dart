@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (success && mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainNavigation()),
+        MaterialPageRoute(builder: (_) => MainNavigation()),
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   await authProvider.signInAsGuest();
                   if (mounted) {
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => const MainNavigation()),
+                      MaterialPageRoute(builder: (_) => MainNavigation()),
                     );
                   }
                 },

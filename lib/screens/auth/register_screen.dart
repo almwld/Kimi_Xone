@@ -56,7 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (success && mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainNavigation()),
+        MaterialPageRoute(builder: (_) => MainNavigation()),
       );
     } else if (mounted && authProvider.error != null) {
       _showMessage(authProvider.error!);
