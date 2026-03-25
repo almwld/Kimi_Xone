@@ -13,52 +13,46 @@ import '../home/main_navigation.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   bool _rememberMe = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   Future<void> _login() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final authProvider = context.read<AuthProvider>();
-      
-      final success = await authProvider.signIn(_emailController.text, _passwordController.text)
-        
-        
-      );
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      Helpers.showSnackBar(context, 'الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+      return;
+    }
 
-      if (success && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainNavigation()),
-        );
-      }
+    setState(() => _isLoading = true);
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final success = await authProvider.signIn(_emailController.text, _passwordController.text);
+
+    setState(() => _isLoading = false);
+
+    if (success && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainNavigation()),
+      );
+    } else if (mounted) {
+      Helpers.showErrorSnackBar(context, authProvider.error ?? 'فشل تسجيل الدخول');
     }
   }
 
   void _loginAsGuest() {
-    context.read<AuthProvider>().signInAsGuest();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => MainNavigation()),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
@@ -179,7 +173,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           onChanged: (value) {
                             setState(() {
                               _rememberMe = value ?? false;
-                            });
                           },
                           activeColor: AppTheme.goldPrimary,
                         ),
@@ -204,7 +197,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(
                             builder: (context) => ForgotPasswordScreen(),
                           ),
-                        );
                       },
                       child: Text(
                         'نسيت كلمة المرور؟',
@@ -334,7 +326,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(
                             builder: (context) => RegisterScreen(),
                           ),
-                        );
                       },
                       child: Text(
                         'إنشاء حساب',
@@ -354,6 +345,5 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
   }
 }

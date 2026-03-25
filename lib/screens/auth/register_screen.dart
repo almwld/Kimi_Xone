@@ -13,16 +13,9 @@ import '../home/main_navigation.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
   
   String _selectedCity = AppConstants.yemeniCities[0];
   String _userType = AppConstants.userTypeCustomer;
@@ -30,12 +23,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
   }
 
   Future<void> _register() async {
@@ -45,15 +32,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           content: Text('يجب الموافقة على الشروط والأحكام'),
           backgroundColor: AppTheme.error,
         ),
-      );
       return;
     }
 
     if (_formKey.currentState?.validate() ?? false) {
-      final authProvider = context.read<AuthProvider>();
       
-      final success = await authProvider.signUp(_emailController.text, _passwordController.text, {})
-      );
 
       if (success && mounted) {
         // الانتقال إلى الشاشة الرئيسية
@@ -61,7 +44,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           context,
           MaterialPageRoute(builder: (context) => MainNavigation()),
           (route) => false,
-        );
       }
     }
   }
@@ -69,7 +51,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
@@ -230,7 +211,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       onChanged: (value) {
                         setState(() {
                           _agreeToTerms = value ?? false;
-                        });
                       },
                       activeColor: AppTheme.goldPrimary,
                     ),
@@ -346,7 +326,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
                       },
                       child: Text(
                         'تسجيل الدخول',
@@ -366,7 +345,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
-    );
   }
 
   Widget _buildCityDropdown() {
@@ -409,18 +387,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 return DropdownMenuItem(
                   value: city,
                   child: Text(city),
-                );
               }).toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedCity = value!;
-                });
               },
             ),
           ),
         ),
       ],
-    );
   }
 
   Widget _buildUserTypeSelector() {
@@ -450,7 +425,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onTap: () {
                   setState(() {
                     _userType = AppConstants.userTypeCustomer;
-                  });
                 },
               ),
             ),
@@ -464,14 +438,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onTap: () {
                   setState(() {
                     _userType = AppConstants.userTypeSeller;
-                  });
                 },
               ),
             ),
           ],
         ),
       ],
-    );
   }
 
   Widget _buildTypeOption({
@@ -524,6 +496,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ],
         ),
       ),
-    );
   }
 }
