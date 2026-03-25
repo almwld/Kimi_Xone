@@ -109,13 +109,11 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => NotificationsScreen()),
-          );
         },
         onSearchTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => SearchScreen()),
-          );
         },
       ),
       body: RefreshIndicator(
@@ -168,7 +166,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-    );
   }
 
   Widget _buildBannerSlider() {
@@ -307,11 +304,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     : Colors.grey.shade400,
                 borderRadius: BorderRadius.circular(4),
               ),
-            );
           }).toList(),
         ),
       ],
-    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -362,7 +357,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-    );
   }
 
   Widget _buildQuickServices() {
@@ -423,7 +417,6 @@ class _HomeScreenState extends State<HomeScreen> {
            .scale(begin: Offset(0.8, 0.8), end: Offset(1, 1));
         },
       ),
-    );
   }
 
   Widget _buildAuctionSection() {
@@ -516,10 +509,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          );
         },
       ),
-    );
   }
 
   Widget _buildRealEstateSection() {
@@ -568,10 +559,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          );
         },
       ),
-    );
   }
 
   Widget _buildElectronicsSection() {
@@ -620,16 +609,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-          );
         },
       ),
-    );
   }
 
   Widget _buildProductsGrid(ProductProvider productProvider) {
     if (productProvider.isLoading && productProvider.products.isEmpty) {
       return const Center(child: CircularProgressIndicator());
-      );
+
     }
 
     if (productProvider.products.isEmpty) {
@@ -662,7 +649,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                   builder: (context) => ProductDetailScreen(product: product),
                 ),
-              );
             },
             onFavoriteTap: () {
               context.read<ProductProvider>().toggleFavorite(product.id);
@@ -673,7 +659,6 @@ class _HomeScreenState extends State<HomeScreen> {
            .slideY(begin: 0.1, end: 0);
         },
       ),
-    );
   }
 
   // إنشاء منتج وهمي
