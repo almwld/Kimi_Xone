@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../core/utils/helpers.dart';
 import '../../theme/app_theme.dart';
 import 'login_screen.dart';
 import '../home/main_navigation.dart';
@@ -27,31 +26,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final List<String> _cities = ['صنعاء', 'عدن', 'تعز', 'الحديدة', 'المكلا', 'إب', 'ذمار', 'البيضاء', 'سيئون', 'مارب'];
 
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _register() async {
-    if (_nameController.text.isEmpty) {
-      Helpers.showSnackBar(context, 'الرجاء إدخال الاسم');
-      return;
-    }
-    if (_emailController.text.isEmpty) {
-      Helpers.showSnackBar(context, 'الرجاء إدخال البريد الإلكتروني');
-      return;
-    }
-    if (_phoneController.text.isEmpty) {
-      Helpers.showSnackBar(context, 'الرجاء إدخال رقم الهاتف');
-      return;
-    }
-    if (_passwordController.text.isEmpty) {
-      Helpers.showSnackBar(context, 'الرجاء إدخال كلمة المرور');
-      return;
-    }
-    if (_passwordController.text != _confirmPasswordController.text) {
-      Helpers.showSnackBar(context, 'كلمات المرور غير متطابقة');
-      return;
-    }
-    if (!_acceptTerms) {
-      Helpers.showSnackBar(context, 'الرجاء الموافقة على الشروط');
-      return;
-    }
+    if (_nameController.text.isEmpty) { _showMessage('الرجاء إدخال الاسم'); return; }
+    if (_emailController.text.isEmpty) { _showMessage('الرجاء إدخال البريد الإلكتروني'); return; }
+    if (_phoneController.text.isEmpty) { _showMessage('الرجاء إدخال رقم الهاتف'); return; }
+    if (_passwordController.text.isEmpty) { _showMessage('الرجاء إدخال كلمة المرور'); return; }
+    if (_passwordController.text != _confirmPasswordController.text) { _showMessage('كلمات المرور غير متطابقة'); return; }
+    if (!_acceptTerms) { _showMessage('الرجاء الموافقة على الشروط'); return; }
 
     setState(() => _isLoading = true);
 
@@ -73,13 +58,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MainNavigation()),
       );
-    } else if (mounted) {
-      Helpers.showErrorSnackBar(context, authProvider.error ?? 'فشل إنشاء الحساب');
+    } else if (mounted && authProvider.error != null) {
+      _showMessage(authProvider.error!);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -103,60 +90,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 32),
               TextField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  hintText: 'الاسم الكامل',
-                  prefixIcon: Icon(Icons.person),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(hintText: 'الاسم الكامل', prefixIcon: Icon(Icons.person), border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  hintText: 'البريد الإلكتروني',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(hintText: 'البريد الإلكتروني', prefixIcon: Icon(Icons.email), border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  hintText: 'رقم الهاتف',
-                  prefixIcon: Icon(Icons.phone),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(hintText: 'رقم الهاتف', prefixIcon: Icon(Icons.phone), border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'كلمة المرور',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(hintText: 'كلمة المرور', prefixIcon: Icon(Icons.lock), border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'تأكيد كلمة المرور',
-                  prefixIcon: Icon(Icons.lock_outline),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(hintText: 'تأكيد كلمة المرور', prefixIcon: Icon(Icons.lock_outline), border: OutlineInputBorder()),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedCity,
-                decoration: const InputDecoration(
-                  hintText: 'المدينة',
-                  prefixIcon: Icon(Icons.location_city),
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(hintText: 'المدينة', prefixIcon: Icon(Icons.location_city), border: OutlineInputBorder()),
                 items: _cities.map((city) => DropdownMenuItem(value: city, child: Text(city))).toList(),
                 onChanged: (value) => setState(() => _selectedCity = value ?? 'صنعاء'),
               ),
@@ -199,6 +162,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ],
               ),
+              if (authProvider.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text(authProvider.error!, style: const TextStyle(color: Colors.red)),
+                ),
             ],
           ),
         ),
