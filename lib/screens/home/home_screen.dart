@@ -629,7 +629,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildProductsGrid(ProductProvider productProvider) {
     if (productProvider.isLoading && productProvider.products.isEmpty) {
       return CircularProgressIndicator(
-        crossAxisCount: 2,
+      return const Center(child: CircularProgressIndicator());
         childAspectRatio: 0.65,
       );
     }
