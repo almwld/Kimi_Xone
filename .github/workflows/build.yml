@@ -1,9 +1,10 @@
-name: Build APK
+name: Flutter Build
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -21,27 +22,129 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.22.0'
-        channel: 'stable'
 
-    - name: Build APK
+    - name: Build
       run: |
-        # إنشاء مجلد android
+        mkdir /tmp/code
+        cp -r lib /tmp/code/
+        cp -r assets /tmp/code/ 2>/dev/null || true
+        cp pubspec.yaml /tmp/code/
+        
+        rm -rf android ios
+        
         flutter create --org com.flexyemen --project-name flex_yemen --platforms android .
         
-        # إضافة flutterEmbedding إلى AndroidManifest.xml
+        rm -rf lib assets
+        cp -r /tmp/code/lib .
+        cp -r /tmp/code/assets . 2>/dev/null || true
+        cp /tmp/code/pubspec.yaml .
+        
+        mkdir -p assets/images assets/icons assets/fonts
+        
+        # إضافة flutterEmbedding
         sed -i '/<application>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
         
-        # تحديث إصدارات SDK
-        sed -i 's/minSdkVersion [0-9]*/minSdkVersion 21/' android/app/build.gradle
-        sed -i 's/compileSdkVersion [0-9]*/compileSdkVersion 34/' android/app/build.gradle
-        sed -i 's/targetSdkVersion [0-9]*/targetSdkVersion 34/' android/app/build.gradle
+        # إعادة إنشاء settings.gradle
+        cat > android/settings.gradle << 'SETTINGS'
+        pluginManagement {
+            def flutterSdkPath = {
+                def properties = new Properties()
+                file("local.properties").withInputStream { properties.load(it) }
+                def flutterSdkPath = properties.getProperty("flutter.sdk")
+                assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+                return flutterSdkPath
+            }()
+            includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+            repositories {
+                google()
+                mavenCentral()
+                gradlePluginPortal()
+            }
+        }
+        plugins {
+            id "dev.flutter.flutter-plugin-loader" version "1.0.0"
+            id "com.android.application" version "8.7.0" apply false
+            id "org.jetbrains.kotlin.android" version "1.9.22" apply false
+        }
+        include ":app"
+        SETTINGS
         
-        # تثبيت الاعتماديات
+        # تحديث gradle-wrapper
+        echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.9-all.zip" > android/gradle/wrapper/gradle-wrapper.properties
+        
+        # تحديث app/build.gradle مع NDK و desugaring
+        cat > android/app/build.gradle << 'APP'
+        plugins {
+            id "com.android.application"
+            id "kotlin-android"
+            id "dev.flutter.flutter-gradle-plugin"
+        }
+        
+        def localProperties = new Properties()
+        def localPropertiesFile = rootProject.file('local.properties')
+        if (localPropertiesFile.exists()) {
+            localPropertiesFile.withReader('UTF-8') { reader ->
+                localProperties.load(reader)
+            }
+        }
+        
+        def flutterVersionCode = localProperties.getProperty('flutter.versionCode', '1')
+        def flutterVersionName = localProperties.getProperty('flutter.versionName', '1.0')
+        
+        android {
+            namespace "com.flexyemen.flex_yemen"
+            compileSdkVersion 34
+            ndkVersion "27.0.12077973"
+            
+            compileOptions {
+                sourceCompatibility JavaVersion.VERSION_17
+                targetCompatibility JavaVersion.VERSION_17
+                coreLibraryDesugaringEnabled true
+            }
+            
+            kotlinOptions {
+                jvmTarget = '17'
+            }
+            
+            sourceSets {
+                main.java.srcDirs += 'src/main/kotlin'
+            }
+            
+            defaultConfig {
+                applicationId "com.flexyemen.flex_yemen"
+                minSdkVersion 21
+                targetSdkVersion 34
+                versionCode flutterVersionCode.toInteger()
+                versionName flutterVersionName
+                multiDexEnabled true
+            }
+            
+            buildTypes {
+                release {
+                    signingConfig signingConfigs.debug
+                    minifyEnabled true
+                    shrinkResources true
+                    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                }
+            }
+        }
+        
+        flutter {
+            source '../..'
+        }
+        
+        dependencies {
+            implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22"
+            implementation 'androidx.multidex:multidex:2.0.1'
+            coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+        }
+        APP
+        
+        # تنظيف cache
+        rm -rf ~/.gradle/caches/
+        
         flutter pub get
-        
-        # بناء APK
         flutter build apk --release --split-per-abi
-
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
