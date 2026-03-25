@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
-part 'order_model.g.dart';
 
 @HiveType(typeId: 4)
 class OrderModel {

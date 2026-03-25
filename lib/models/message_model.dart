@@ -1,7 +1,6 @@
 // نموذج الرسالة
 import 'package:hive/hive.dart';
 
-part 'message_model.g.dart';
 
 @HiveType(typeId: 7)
 class MessageModel {

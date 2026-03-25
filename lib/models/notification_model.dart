@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
-part 'notification_model.g.dart';
 
 @HiveType(typeId: 10)
 class NotificationModel {

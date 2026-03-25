@@ -1,7 +1,6 @@
 // نموذج المنتج
 import 'package:hive/hive.dart';
 
-part 'product_model.g.dart';
 
 @HiveType(typeId: 2)
 class ProductModel {
@@ -81,7 +80,7 @@ class ProductModel {
   final bool hasShipping;
   
   @HiveField(25)
-  final bool is negotiable;
+  final bool isNegotiable;
 
   ProductModel({
     required this.id,
@@ -109,7 +108,7 @@ class ProductModel {
     this.reviewsCount = 0,
     this.hasWarranty = false,
     this.hasShipping = false,
-    this.is negotiable = false,
+    this.isNegotiable = false,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -143,7 +142,7 @@ class ProductModel {
       reviewsCount: json['reviews_count'] ?? 0,
       hasWarranty: json['has_warranty'] ?? false,
       hasShipping: json['has_shipping'] ?? false,
-      is negotiable: json['is_negotiable'] ?? false,
+      isNegotiable: json['is_negotiable'] ?? false,
     );
   }
 

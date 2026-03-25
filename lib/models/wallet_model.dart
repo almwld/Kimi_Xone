@@ -1,7 +1,6 @@
 // نموذج المحفظة
 import 'package:hive/hive.dart';
 
-part 'wallet_model.g.dart';
 
 @HiveType(typeId: 8)
 class WalletModel {

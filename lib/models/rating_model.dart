@@ -1,7 +1,6 @@
 // نموذج التقييم
 import 'package:hive/hive.dart';
 
-part 'rating_model.g.dart';
 
 @HiveType(typeId: 11)
 class RatingModel {

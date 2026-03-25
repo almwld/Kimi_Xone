@@ -1,7 +1,6 @@
 // نموذج الإعلان
 import 'package:hive/hive.dart';
 
-part 'ad_model.g.dart';
 
 @HiveType(typeId: 3)
 class AdModel {
