@@ -1,124 +1,49 @@
-# GitHub Actions Workflow لبناء تطبيق Flutter
-name: Flutter Build
+name: Build APK
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
-    
     steps:
-    # Checkout الكود
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
-    # إعداد Java
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
-    
-    # إعداد Flutter
+
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.19.0'
-        channel: 'stable'
-    
-    # تثبيت الاعتماديات
-    - name: Install dependencies
-      run: flutter pub get
-    
-    # تحليل الكود
-    - name: Analyze code
-      run: flutter analyze
-    
-    # تشغيل الاختبارات
-    - name: Run tests
-      run: flutter test
-    
-    # بناء APK
-    - name: Build APK
-      run: flutter build apk --release
-    
-    # بناء AAB
-    - name: Build AAB
-      run: flutter build appbundle --release
-    
-    # رفع الملفات كـ Artifacts
+        flutter-version: '3.22.0'
+
+    - name: Build
+      run: |
+        # إنشاء مجلد android
+        flutter create --org com.flexyemen --project-name flex_yemen --platforms android .
+        
+        # إضافة flutterEmbedding
+        sed -i '/<application>/a \        <meta-data android:name="flutterEmbedding" android:value="2" />' android/app/src/main/AndroidManifest.xml
+        
+        # رفع minSdkVersion إلى 21 (لـ firebase_messaging)
+        sed -i 's/minSdkVersion [0-9]*/minSdkVersion 21/' android/app/build.gradle
+        
+        # إضافة NDK و desugaring
+        sed -i '/android {/a \    ndkVersion "27.0.12077973"' android/app/build.gradle
+        sed -i '/compileOptions {/a \                coreLibraryDesugaringEnabled true' android/app/build.gradle
+        sed -i '/dependencies {/a \    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.4"' android/app/build.gradle
+        
+        # بناء APK
+        flutter pub get
+        flutter build apk --release --split-per-abi
+
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: release-apk
-        path: build/app/outputs/flutter-apk/app-release.apk
-    
-    - name: Upload AAB
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-aab
-        path: build/app/outputs/bundle/release/app-release.aab
-
-  build-ios:
-    runs-on: macos-latest
-    
-    steps:
-    # Checkout الكود
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    # إعداد Flutter
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.19.0'
-        channel: 'stable'
-    
-    # تثبيت الاعتماديات
-    - name: Install dependencies
-      run: flutter pub get
-    
-    # بناء iOS
-    - name: Build iOS
-      run: flutter build ios --release --no-codesign
-    
-    # رفع الملفات كـ Artifacts
-    - name: Upload iOS build
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-ios
-        path: build/ios/iphoneos/Runner.app
-
-  build-web:
-    runs-on: ubuntu-latest
-    
-    steps:
-    # Checkout الكود
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    # إعداد Flutter
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.19.0'
-        channel: 'stable'
-    
-    # تثبيت الاعتماديات
-    - name: Install dependencies
-      run: flutter pub get
-    
-    # بناء الويب
-    - name: Build Web
-      run: flutter build web --release
-    
-    # رفع الملفات كـ Artifacts
-    - name: Upload Web build
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-web
-        path: build/web
+        name: app-release
+        path: build/app/outputs/flutter-apk/*.apk
