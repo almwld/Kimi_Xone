@@ -61,10 +61,10 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: isDark ? AppTheme.darkBg : AppTheme.lightBg,
       appBar: CustomAppBar(
         onNotificationTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => NotificationsScreen()));
         },
         onSearchTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const SearchScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => SearchScreen()));
         },
         notificationCount: notificationProvider.unreadCount,
       ),
