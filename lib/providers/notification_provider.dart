@@ -6,7 +6,7 @@ import '../services/supabase_service.dart';
 import '../services/notification_service.dart';
 
 class NotificationProvider extends ChangeNotifier {
-  final SupabaseService _supabaseService = SupabaseService();
+  
   final NotificationService _notificationService = NotificationService();
 
   List<NotificationModel> _notifications = [];
@@ -39,7 +39,7 @@ class NotificationProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _notifications = await _supabaseService.getNotifications(
+      _notifications = await SupabaseService.getNotifications(
         userId,
         limit: limit,
       );
@@ -60,7 +60,7 @@ class NotificationProvider extends ChangeNotifier {
   // تحديد إشعار كمقروء
   Future<void> markAsRead(String notificationId) async {
     try {
-      await _supabaseService.markNotificationAsRead(notificationId);
+      await SupabaseService.markNotificationAsRead(notificationId);
 
       // تحديث القائمة المحلية
       final index = _notifications.indexWhere((n) => n.id == notificationId);
@@ -92,7 +92,7 @@ class NotificationProvider extends ChangeNotifier {
       final unreadList = _notifications.where((n) => !n.isRead).toList();
       
       for (final notification in unreadList) {
-        await _supabaseService.markNotificationAsRead(notification.id);
+        await SupabaseService.markNotificationAsRead(notification.id);
       }
 
       // تحديث القائمة المحلية
@@ -144,7 +144,7 @@ class NotificationProvider extends ChangeNotifier {
   void _listenToNotifications(String userId) {
     _notificationsChannel?.unsubscribe();
 
-    _notificationsChannel = _supabaseService.listenToNotifications(
+    _notificationsChannel = SupabaseService.listenToNotifications(
       userId,
       (notification) {
         // إضافة الإشعار الجديد إلى القائمة

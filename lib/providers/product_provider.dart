@@ -5,7 +5,7 @@ import '../services/supabase_service.dart';
 import '../services/local_storage_service.dart';
 
 class ProductProvider extends ChangeNotifier {
-  final SupabaseService _supabaseService = SupabaseService();
+  
   
 
   List<ProductModel> _products = [];
@@ -68,7 +68,7 @@ class ProductProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final newProducts = await _supabaseService.getProducts(
+      final newProducts = await SupabaseService.getProducts(
         page: _currentPage,
         category: category ?? _currentCategory,
         search: search ?? _searchQuery,
@@ -101,7 +101,7 @@ class ProductProvider extends ChangeNotifier {
   // تحميل المنتجات المميزة
   Future<void> loadFeaturedProducts() async {
     try {
-      final products = await _supabaseService.getProducts(
+      final products = await SupabaseService.getProducts(
         limit: 10,
       );
       _featuredProducts = products.take(6).toList();
@@ -128,7 +128,7 @@ class ProductProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final product = await _supabaseService.getProduct(productId);
+      final product = await SupabaseService.getProduct(productId);
       _selectedProduct = product;
       notifyListeners();
       return product;
@@ -146,7 +146,7 @@ class ProductProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final product = await _supabaseService.addProduct(data);
+      final product = await SupabaseService.addProduct(data);
       if (product != null) {
         _products.insert(0, product);
         notifyListeners();
@@ -170,7 +170,7 @@ class ProductProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await _supabaseService.updateProduct(productId, data);
+      await SupabaseService.updateProduct(productId, data);
       
       // تحديث القائمة المحلية
       final index = _products.indexWhere((p) => p.id == productId);
@@ -194,7 +194,7 @@ class ProductProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await _supabaseService.deleteProduct(productId);
+      await SupabaseService.deleteProduct(productId);
       _products.removeWhere((p) => p.id == productId);
       notifyListeners();
       return true;
@@ -221,7 +221,7 @@ class ProductProvider extends ChangeNotifier {
   // إضافة إلى المفضلة
   Future<void> addToFavorites(String productId) async {
     try {
-      await _supabaseService.addToFavorites('current_user_id', productId);
+      await SupabaseService.addToFavorites('current_user_id', productId);
       await LocalStorageService.addToFavorites(productId);
       _favoriteIds.add(productId);
       notifyListeners();
@@ -233,7 +233,7 @@ class ProductProvider extends ChangeNotifier {
   // إزالة من المفضلة
   Future<void> removeFromFavorites(String productId) async {
     try {
-      await _supabaseService.removeFromFavorites('current_user_id', productId);
+      await SupabaseService.removeFromFavorites('current_user_id', productId);
       await LocalStorageService.removeFromFavorites(productId);
       _favoriteIds.remove(productId);
       notifyListeners();
@@ -259,7 +259,7 @@ class ProductProvider extends ChangeNotifier {
   // تحميل المفضلة
   Future<void> loadFavorites(String userId) async {
     try {
-      _favoriteIds = await _supabaseService.getFavorites(userId);
+      _favoriteIds = await SupabaseService.getFavorites(userId);
       await LocalStorageService.saveFavoriteProducts(
         _products.where((p) => _favoriteIds.contains(p.id)).toList(),
       );

@@ -6,7 +6,7 @@ import '../models/message_model.dart';
 import '../services/supabase_service.dart';
 
 class ChatProvider extends ChangeNotifier {
-  final SupabaseService _supabaseService = SupabaseService();
+  
 
   List<ChatModel> _chats = [];
   List<MessageModel> _messages = [];
@@ -35,7 +35,7 @@ class ChatProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _chats = await _supabaseService.getChats(userId);
+      _chats = await SupabaseService.getChats(userId);
       notifyListeners();
     } catch (e) {
       _setError('فشل تحميل المحادثات');
@@ -53,7 +53,7 @@ class ChatProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final chat = await _supabaseService.createChat(
+      final chat = await SupabaseService.createChat(
         currentUserId,
         otherUserId,
       );
@@ -108,7 +108,7 @@ class ChatProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      _messages = await _supabaseService.getMessages(
+      _messages = await SupabaseService.getMessages(
         chatId,
         limit: limit,
       );
@@ -129,7 +129,7 @@ class ChatProvider extends ChangeNotifier {
     String? mediaUrl,
   }) async {
     try {
-      final message = await _supabaseService.sendMessage({
+      final message = await SupabaseService.sendMessage({
         'chat_id': chatId,
         'sender_id': senderId,
         'content': content,
@@ -184,7 +184,7 @@ class ChatProvider extends ChangeNotifier {
   ) async {
     try {
       // رفع الصورة
-      final imageUrl = await _supabaseService.uploadChatImage(chatId, file);
+      final imageUrl = await SupabaseService.uploadChatImage(chatId, file);
       
       if (imageUrl != null) {
         return await sendMessage(
@@ -207,7 +207,7 @@ class ChatProvider extends ChangeNotifier {
     // إلغاء الاشتراك السابق
     _messagesChannel?.unsubscribe();
 
-    _messagesChannel = _supabaseService.listenToMessages(
+    _messagesChannel = SupabaseService.listenToMessages(
       chatId,
       (message) {
         // التحقق من عدم وجود الرسالة في القائمة

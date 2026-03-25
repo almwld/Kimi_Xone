@@ -6,7 +6,7 @@ import '../services/supabase_service.dart';
 import '../services/payment_service.dart';
 
 class WalletProvider extends ChangeNotifier {
-  final SupabaseService _supabaseService = SupabaseService();
+  
   final PaymentService _paymentService = PaymentService();
 
   WalletModel? _wallet;
@@ -40,7 +40,7 @@ class WalletProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final walletData = await _supabaseService.getWallet(userId);
+      final walletData = await SupabaseService.getWallet(userId);
       if (walletData != null) {
         _wallet = WalletModel.fromJson(walletData);
         _yerBalance = _wallet!.yemeniRial;
@@ -48,7 +48,7 @@ class WalletProvider extends ChangeNotifier {
         _usdBalance = _wallet!.usDollar;
       } else {
         // إنشاء محفظة جديدة
-        await _supabaseService.createWallet(userId);
+        await SupabaseService.createWallet(userId);
         await loadWallet(userId);
         return;
       }
@@ -66,7 +66,7 @@ class WalletProvider extends ChangeNotifier {
 
     try {
       if (_wallet != null) {
-        _transactions = await _supabaseService.getTransactions(
+        _transactions = await SupabaseService.getTransactions(
           _wallet!.id,
           limit: limit,
         );
@@ -395,7 +395,7 @@ class WalletProvider extends ChangeNotifier {
   Future<void> _updateBalance(String currency, double amount) async {
     if (_wallet == null) return;
 
-    await _supabaseService.updateBalance(_wallet!.id, currency, amount);
+    await SupabaseService.updateBalance(_wallet!.id, currency, amount);
 
     switch (currency) {
       case 'YER':
@@ -424,7 +424,7 @@ class WalletProvider extends ChangeNotifier {
   }) async {
     if (_wallet == null) return;
 
-    await _supabaseService.createTransaction({
+    await SupabaseService.createTransaction({
       'wallet_id': _wallet!.id,
       'user_id': _wallet!.userId,
       'type': type,

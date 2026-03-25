@@ -6,7 +6,7 @@ import '../services/supabase_service.dart';
 import '../services/local_storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
-  final SupabaseService _supabaseService = SupabaseService();
+  
   
 
   UserModel? _currentUser;
@@ -31,10 +31,10 @@ class AuthProvider extends ChangeNotifier {
       if (storedUser != null) {
         _currentUser = storedUser;
         _isAuthenticated = true;
-      } else if (_supabaseService.isAuthenticated) {
+      } else if (SupabaseService.isAuthenticated) {
         // التحقق من Supabase
-        final userId = _supabaseService.currentUser!.id;
-        final user = await _supabaseService.getUser(userId);
+        final userId = SupabaseService.currentUser!.id;
+        final user = await SupabaseService.getUser(userId);
         if (user != null) {
           _currentUser = user;
           _isAuthenticated = true;
@@ -57,13 +57,13 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final response = await _supabaseService.signIn(
+      final response = await SupabaseService.signIn(
         email: email,
         password: password,
       );
 
       if (response.user != null) {
-        final user = await _supabaseService.getUser(response.user!.id);
+        final user = await SupabaseService.getUser(response.user!.id);
         if (user != null) {
           _currentUser = user;
           _isAuthenticated = true;
@@ -88,7 +88,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await _supabaseService.signInWithPhone(phone: phone);
+      await SupabaseService.signInWithPhone(phone: phone);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -106,13 +106,13 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final response = await _supabaseService.verifyOTP(
+      final response = await SupabaseService.verifyOTP(
         phone: phone,
         token: code,
       );
 
       if (response.user != null) {
-        final user = await _supabaseService.getUser(response.user!.id);
+        final user = await SupabaseService.getUser(response.user!.id);
         if (user != null) {
           _currentUser = user;
           _isAuthenticated = true;
@@ -144,7 +144,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      final response = await _supabaseService.signUp(
+      final response = await SupabaseService.signUp(
         email: email,
         password: password,
         userData: {
@@ -157,7 +157,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (response.user != null) {
         // إنشاء محفظة للمستخدم
-        await _supabaseService.createWallet(response.user!.id);
+        await SupabaseService.createWallet(response.user!.id);
         
         _setLoading(false);
         return true;
@@ -177,7 +177,7 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      await _supabaseService.signOut();
+      await SupabaseService.signOut();
       await LocalStorageService.clearUser();
       _currentUser = null;
       _isAuthenticated = false;
@@ -195,7 +195,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await _supabaseService.resetPassword(email);
+      await SupabaseService.resetPassword(email);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -210,7 +210,7 @@ class AuthProvider extends ChangeNotifier {
     _clearError();
 
     try {
-      await _supabaseService.updatePassword(newPassword);
+      await SupabaseService.updatePassword(newPassword);
       _setLoading(false);
       return true;
     } catch (e) {
@@ -226,10 +226,10 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       if (_currentUser != null) {
-        await _supabaseService.updateUser(_currentUser!.id, data);
+        await SupabaseService.updateUser(_currentUser!.id, data);
         
         // تحديث البيانات المحلية
-        final updatedUser = await _supabaseService.getUser(_currentUser!.id);
+        final updatedUser = await SupabaseService.getUser(_currentUser!.id);
         if (updatedUser != null) {
           _currentUser = updatedUser;
           await LocalStorageService.saveUser(updatedUser);
@@ -254,7 +254,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       if (_currentUser != null && file != null) {
-        final url = await _supabaseService.uploadAvatar(
+        final url = await SupabaseService.uploadAvatar(
           _currentUser!.id,
           file,
         );
@@ -310,3 +310,4 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+// تأكد من تحويل storedUser
