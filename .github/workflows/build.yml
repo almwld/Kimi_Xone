@@ -31,90 +31,90 @@ jobs:
 
       - name: Fix Kotlin version
         run: |
-          # تحديث build.gradle (root)
-          cat > android/build.gradle << 'BUILDGRADLE'
-buildscript {
-    ext.kotlin_version = '1.9.22'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
-}
-tasks.register('clean', Delete) {
-    delete rootProject.buildDir
-}
-BUILDGRADLE
+          # build.gradle (root)
+          echo 'buildscript {
+              ext.kotlin_version = "1.9.22"
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath "com.android.tools.build:gradle:7.3.0"
+                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+              }
+          }
+          allprojects {
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.buildDir = "../build"
+          subprojects {
+              project.buildDir = "${rootProject.buildDir}/${project.name}"
+          }
+          subprojects {
+              project.evaluationDependsOn(":app")
+          }
+          tasks.register("clean", Delete) {
+              delete rootProject.buildDir
+          }' > android/build.gradle
           
-          # تحديث app/build.gradle
-          cat > android/app/build.gradle << 'APPGRADLE'
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-}
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
-}
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode', '1')
-def flutterVersionName = localProperties.getProperty('flutter.versionName', '1.0')
-android {
-    namespace "com.flexyemen.flex_yemen"
-    compileSdk 34
-    ndkVersion flutter.ndkVersion
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-    defaultConfig {
-        applicationId "com.flexyemen.flex_yemen"
-        minSdk 21
-        targetSdk 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
-        }
-    }
-}
-flutter {
-    source '../..'
-}
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22"
-}
-APPGRADLE
+          # app/build.gradle
+          echo 'plugins {
+              id "com.android.application"
+              id "kotlin-android"
+              id "dev.flutter.flutter-gradle-plugin"
+          }
+          def localProperties = new Properties()
+          def localPropertiesFile = rootProject.file("local.properties")
+          if (localPropertiesFile.exists()) {
+              localPropertiesFile.withReader("UTF-8") { reader ->
+                  localProperties.load(reader)
+              }
+          }
+          def flutterVersionCode = localProperties.getProperty("flutter.versionCode", "1")
+          def flutterVersionName = localProperties.getProperty("flutter.versionName", "1.0")
+          android {
+              namespace "com.flexyemen.flex_yemen"
+              compileSdk 34
+              ndkVersion flutter.ndkVersion
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_1_8
+                  targetCompatibility JavaVersion.VERSION_1_8
+              }
+              kotlinOptions {
+                  jvmTarget = "1.8"
+              }
+              sourceSets {
+                  main.java.srcDirs += "src/main/kotlin"
+              }
+              defaultConfig {
+                  applicationId "com.flexyemen.flex_yemen"
+                  minSdk 21
+                  targetSdk 34
+                  versionCode flutterVersionCode.toInteger()
+                  versionName flutterVersionName
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.debug
+                  }
+              }
+          }
+          flutter {
+              source "../.."
+          }
+          dependencies {
+              implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22"
+          }' > android/app/build.gradle
           
-          # تحديث gradle-wrapper
-          echo "distributionUrl=https\\://services.gradle.org/distributions/gradle-8.3-all.zip" > android/gradle/wrapper/gradle-wrapper.properties
+          # gradle-wrapper.properties
+          echo 'distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.3-all.zip' > android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Get dependencies
         run: flutter pub get
