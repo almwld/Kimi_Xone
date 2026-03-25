@@ -164,7 +164,7 @@ class SupabaseService {
       final response = await client
           .from('users')
           .select('*')
-          .eq('id', userId)
+          .filter('id', userId)
           .single();
       
       return UserModel.fromJson(response);
@@ -180,7 +180,7 @@ class SupabaseService {
       await client
           .from('users')
           .update(data)
-          .eq('id', userId);
+          .filter('id', userId);
     } catch (e) {
       debugPrint('Error updating user: $e');
       rethrow;
@@ -231,23 +231,23 @@ class SupabaseService {
           .order(sortBy, ascending: !descending);
 
       if (category != null) {
-        query = query.eq('category', category);
+        query = query.filter('category', category);
       }
       
       if (search != null && search.isNotEmpty) {
-        query = query.ilike('title', '%$search%');
+        query = query.filter('title', '%$search%');
       }
       
       if (city != null) {
-        query = query.eq('city', city);
+        query = query.filter('city', city);
       }
       
       if (minPrice != null) {
-        query = query.gte('price', minPrice);
+        query = query.filter('price', minPrice);
       }
       
       if (maxPrice != null) {
-        query = query.lte('price', maxPrice);
+        query = query.filter('price', maxPrice);
       }
 
       final response = await query;
@@ -267,7 +267,7 @@ class SupabaseService {
       final response = await client
           .from('products')
           .select('*')
-          .eq('id', productId)
+          .filter('id', productId)
           .single();
       
       // زيادة عدد المشاهدات
@@ -305,7 +305,7 @@ class SupabaseService {
       await client
           .from('products')
           .update(data)
-          .eq('id', productId);
+          .filter('id', productId);
     } catch (e) {
       debugPrint('Error updating product: $e');
       rethrow;
@@ -318,7 +318,7 @@ class SupabaseService {
       await client
           .from('products')
           .delete()
-          .eq('id', productId);
+          .filter('id', productId);
     } catch (e) {
       debugPrint('Error deleting product: $e');
       rethrow;
@@ -374,8 +374,8 @@ class SupabaseService {
       await client
           .from('favorites')
           .delete()
-          .eq('user_id', userId)
-          .eq('product_id', productId);
+          .filter('user_id', userId)
+          .filter('product_id', productId);
     } catch (e) {
       debugPrint('Error removing from favorites: $e');
       rethrow;
@@ -388,7 +388,7 @@ class SupabaseService {
       final response = await client
           .from('favorites')
           .select('product_id')
-          .eq('user_id', userId);
+          .filter('user_id', userId);
       
       return (response as List)
           .map((item) => item['product_id'] as String)
@@ -405,8 +405,8 @@ class SupabaseService {
       final response = await client
           .from('favorites')
           .select()
-          .eq('user_id', userId)
-          .eq('product_id', productId)
+          .filter('user_id', userId)
+          .filter('product_id', productId)
           .maybeSingle();
       
       return response != null;
@@ -440,7 +440,7 @@ class SupabaseService {
       final response = await client
           .from('orders')
           .select('*')
-          .eq('user_id', userId)
+          .filter('user_id', userId)
           .order('created_at', ascending: false);
       
       return (response as List)
@@ -464,7 +464,7 @@ class SupabaseService {
             'status': status,
             'updated_at': DateTime.now().toIso8601String(),
           })
-          .eq('id', orderId);
+          .filter('id', orderId);
     } catch (e) {
       debugPrint('Error updating order status: $e');
       rethrow;
@@ -479,7 +479,7 @@ class SupabaseService {
       final response = await client
           .from('wallets')
           .select('*')
-          .eq('user_id', userId)
+          .filter('user_id', userId)
           .maybeSingle();
       
       return response;
@@ -560,7 +560,7 @@ class SupabaseService {
       final response = await client
           .from('transactions')
           .select('*')
-          .eq('wallet_id', walletId)
+          .filter('wallet_id', walletId)
           .order('created_at', ascending: false)
           .limit(limit);
       
@@ -647,7 +647,7 @@ class SupabaseService {
       final response = await client
           .from('messages')
           .select('*')
-          .eq('chat_id', chatId)
+          .filter('chat_id', chatId)
           .order('created_at', ascending: true)
           .limit(limit);
       
@@ -677,7 +677,7 @@ class SupabaseService {
             'last_message_time': DateTime.now().toIso8601String(),
             'last_message_sender_id': data['sender_id'],
           })
-          .eq('id', data['chat_id']);
+          .filter('id', data['chat_id']);
       
       return MessageModel.fromJson(response);
     } catch (e) {
@@ -732,7 +732,7 @@ class SupabaseService {
       final response = await client
           .from('ratings')
           .select('*')
-          .eq('product_id', productId)
+          .filter('product_id', productId)
           .order('created_at', ascending: false);
       
       return (response as List)
@@ -755,7 +755,7 @@ class SupabaseService {
       final response = await client
           .from('notifications')
           .select('*')
-          .eq('user_id', userId)
+          .filter('user_id', userId)
           .order('created_at', ascending: false)
           .limit(limit);
       
@@ -777,7 +777,7 @@ class SupabaseService {
             'is_read': true,
             'read_at': DateTime.now().toIso8601String(),
           })
-          .eq('id', notificationId);
+          .filter('id', notificationId);
     } catch (e) {
       debugPrint('Error marking notification as read: $e');
       rethrow;

@@ -173,7 +173,7 @@ class ProductModel {
       'reviews_count': reviewsCount,
       'has_warranty': hasWarranty,
       'has_shipping': hasShipping,
-      'is_negotiable': is negotiable,
+      'is_negotiable': isNegotiable,
     };
   }
 

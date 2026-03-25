@@ -225,7 +225,7 @@ class _AmazonScreenState extends State<AmazonScreen> {
                 hintText: 'example@email.com',
                 hintStyle: TextStyle(
                   fontFamily: 'Tajawal',
-                  color: isDark ? Colors.white38 : Colors.black38,
+                  color: isDark ? Colors.white38 : Colors.black.withOpacity(0.38),
                 ),
                 prefixIcon: Icon(Icons.email, color: AppTheme.goldPrimary),
                 filled: true,

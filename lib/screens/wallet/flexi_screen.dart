@@ -176,7 +176,7 @@ class _FlexiScreenState extends State<FlexiScreen> {
                 hintText: '7XXXXXXXX',
                 hintStyle: TextStyle(
                   fontFamily: 'Tajawal',
-                  color: isDark ? Colors.white38 : Colors.black38,
+                  color: isDark ? Colors.white38 : Colors.black.withOpacity(0.38),
                 ),
                 prefixIcon: Container(
                   margin: EdgeInsets.all(8),
