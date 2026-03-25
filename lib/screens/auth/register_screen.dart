@@ -52,13 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       final authProvider = context.read<AuthProvider>();
       
-      final success = await authProvider.signUp(email, password, userData)
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-        fullName: _nameController.text.trim(),
-        phone: _phoneController.text.trim(),
-        city: _selectedCity,
-        userType: _userType,
+      final success = await authProvider.signUp(_emailController.text, _passwordController.text, {})
       );
 
       if (success && mounted) {
